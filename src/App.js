@@ -5,14 +5,16 @@ import { CardPart } from './components/CardPart';
 import './App.css';
 import { Col, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { initRobots } from './core/robots.actions';
-import { selectRobots } from './core/robot.selectors';
+import { initParts, initRobots } from './core/robots.actions';
+import {
+  selectRobots,
+  selectPartsofSelectedRobot,
+} from './core/robot.selectors';
 
 function App() {
-  const [parts, setParts] = useState([]);
-  const [selectedPartIds, setSelectedPartIds] = useState([]);
   const dispatch = useDispatch();
   const robots = useSelector(selectRobots);
+  const selectedParts = useSelector(selectPartsofSelectedRobot);
 
   useEffect(() => {
     fetch('https://pure-temple-56604.herokuapp.com/robots')
@@ -25,10 +27,10 @@ function App() {
   useEffect(() => {
     fetch('https://pure-temple-56604.herokuapp.com/parts')
       .then((resp) => resp.json())
-      .then((values) => setParts(values));
-  }, []);
-
-  console.log(selectedPartIds);
+      .then((values) => {
+        dispatch(initParts(values));
+      });
+  }, [dispatch]);
 
   return (
     <Row>
@@ -40,17 +42,13 @@ function App() {
             title={robot.title}
             visualType={robot.visual_type}
             visualSrc={robot.visual_src}
-            partIds={robot.parts}
-            onSelectRobot={(partIds) => setSelectedPartIds(partIds)}
           />
         ))}
       </Col>
       <Col md={4} lg={4}>
-        {parts
-          .filter((part) => selectedPartIds.includes(part.id))
-          .map((part) => (
-            <CardPart key={part.id} part={part} />
-          ))}
+        {selectedParts.map((part) => (
+          <CardPart key={part.id} part={part} />
+        ))}
       </Col>
       <Col md={4} lg={4}></Col>
     </Row>
