@@ -4,17 +4,23 @@ import { CardPart } from './components/CardPart';
 
 import './App.css';
 import { Col, Row } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { initRobots } from './core/robots.actions';
+import { selectRobots } from './core/robot.selectors';
 
 function App() {
-  const [robots, setRobots] = useState([]);
   const [parts, setParts] = useState([]);
   const [selectedPartIds, setSelectedPartIds] = useState([]);
+  const dispatch = useDispatch();
+  const robots = useSelector(selectRobots);
 
   useEffect(() => {
     fetch('https://pure-temple-56604.herokuapp.com/robots')
       .then((resp) => resp.json())
-      .then((values) => setRobots(values));
-  }, []);
+      .then((values) => {
+        dispatch(initRobots(values));
+      });
+  }, [dispatch]);
 
   useEffect(() => {
     fetch('https://pure-temple-56604.herokuapp.com/parts')
